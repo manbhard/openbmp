@@ -193,7 +193,7 @@ public:
      *
      * \throws (const char *) on error.   String will detail error message.
      */
-    char handleMessage(int sock, void *parse_bgp_lib_peer_buf);
+    char handleMessage(int sock);
 
     /**
      * Parse and return back the stats report
@@ -307,7 +307,7 @@ private:
      *
      * \param [in]  sock        Socket to read the message from
      */
-    void parseBMPv3(int sock, void *parse_bgp_lib_peer_buf);
+    void parseBMPv3(int sock);
 
 
     /**
@@ -315,7 +315,7 @@ private:
      *
      * \param [in]  sock        Socket to read the message from
      */
-    void parsePeerHdr(int sock, void *parse_bgp_lib_peer_buf);
+    void parsePeerHdr(int sock);
 
 };
 

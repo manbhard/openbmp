@@ -831,9 +831,10 @@ void parseBgpLib::parseBgpAttr(u_char *data, uint16_t len, parsed_update &update
             data += 2;
             read_size += 2;
             parse_bgp_lib::SWAP_BYTES(&attr_len);
-        } else
+        } else {
             attr_len = *data++;
-        read_size++;
+            read_size++;
+        }
 
         // Get the attribute data, if we have any; making sure to not overrun buffer
         if (attr_len > 0 and (read_size + attr_len) <= len) {

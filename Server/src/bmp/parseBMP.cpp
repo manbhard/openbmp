@@ -79,7 +79,7 @@ ssize_t parseBMP::Recv(int sockfd, void *buf, size_t len, int flags) {
  *
  * \throws (const char *) on error.   String will detail error message.
  */
-char parseBMP::handleMessage(int sock, void *parse_bgp_lib_peer_buf) {
+char parseBMP::handleMessage(int sock) {
     unsigned char ver;
     ssize_t bytes_read;
 
@@ -96,7 +96,7 @@ char parseBMP::handleMessage(int sock, void *parse_bgp_lib_peer_buf) {
 
     // check the version
     if (ver == 3) { // draft-ietf-grow-bmp-04 - 07
-        parseBMPv3(sock, parse_bgp_lib_peer_buf);
+        parseBMPv3(sock);
     }
 
     // Handle the older versions
@@ -285,7 +285,7 @@ void parseBMP::parseBMPv2(int sock) {
  *
  * \param [in]  sock        Socket to read the message from
  */
-void parseBMP::parseBMPv3(int sock, void *parse_bgp_lib_peer_buf) {
+void parseBMP::parseBMPv3(int sock) {
     struct common_hdr_v3 c_hdr = { 0 };
 
     SELF_DEBUG("Parsing BMP version 3 (rfc7854)");
@@ -311,24 +311,24 @@ void parseBMP::parseBMPv3(int sock, void *parse_bgp_lib_peer_buf) {
     switch (c_hdr.type) {
         case TYPE_ROUTE_MON: // Route monitoring
             SELF_DEBUG("BMP MSG : route monitor");
-            parsePeerHdr(sock, parse_bgp_lib_peer_buf);
+            parsePeerHdr(sock);
             break;
 
         case TYPE_STATS_REPORT: // Statistics Report
             SELF_DEBUG("BMP MSG : stats report");
-            parsePeerHdr(sock, parse_bgp_lib_peer_buf);
+            parsePeerHdr(sock);
             break;
 
         case TYPE_PEER_UP: // Peer Up notification
         {
             SELF_DEBUG("BMP MSG : peer up");
-            parsePeerHdr(sock, parse_bgp_lib_peer_buf);
+            parsePeerHdr(sock);
 
             break;
         }
         case TYPE_PEER_DOWN: // Peer down notification
             SELF_DEBUG("BMP MSG : peer down");
-            parsePeerHdr(sock, parse_bgp_lib_peer_buf);
+            parsePeerHdr(sock);
             break;
 
         case TYPE_INIT_MSG:
@@ -348,7 +348,7 @@ void parseBMP::parseBMPv3(int sock, void *parse_bgp_lib_peer_buf) {
  *
  * \param [in]  sock        Socket to read the message from
  */
-void parseBMP::parsePeerHdr(int sock, void *parse_bgp_lib_peer_buf) {
+void parseBMP::parsePeerHdr(int sock) {
     peer_hdr_v3 p_hdr = {0};
     int i;
 
@@ -359,11 +359,6 @@ void parseBMP::parsePeerHdr(int sock, void *parse_bgp_lib_peer_buf) {
         LOG_ERR("sock=%d: Couldn't read all bytes, read %d bytes",
                 sock, i);
     }
-
-    /*
-     * Make a copy of the peer hdr for parsing lib
-     */
-    memcpy(parse_bgp_lib_peer_buf, &p_hdr, sizeof(peer_hdr_v3));
 
     // Adjust the common header length to remove the peer header (as it's been read)
     bmp_len -= BMP_PEER_HDR_LEN;
